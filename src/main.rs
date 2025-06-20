@@ -1,7 +1,7 @@
 mod cli;
 
 use anyhow::{Result, anyhow};
-use cli::{Cli};
+use cli::Cli;
 use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
 
@@ -67,9 +67,7 @@ fn main() -> Result<(), anyhow::Error> {
         .map_err(|_| anyhow!("请求发送失败"))?;
     match res.status() {
         StatusCode::OK => {
-            let gemini_res: GeminiRes = res
-                .json()
-                .map_err(|_| anyhow!("解析请求体失败"))?;
+            let gemini_res: GeminiRes = res.json().map_err(|_| anyhow!("解析请求体失败"))?;
             let first_candidate = gemini_res
                 .candidates
                 .into_iter()
@@ -84,11 +82,6 @@ fn main() -> Result<(), anyhow::Error> {
             println!("{}", first_part.text);
             Ok(())
         }
-        status => {
-            Err(anyhow!(
-                "状态码错误: {}",
-                status,
-            ))
-        }
+        status => Err(anyhow!("状态码错误: {}", status,)),
     }
 }
