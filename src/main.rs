@@ -1,6 +1,7 @@
 mod cli;
 
-use cli::{Args, Cli};
+use anyhow::{Result, anyhow};
+use cli::{Cli};
 use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
 
@@ -47,8 +48,8 @@ impl From<Vec<Content>> for GeminiReq {
     }
 }
 
-fn main() {
-    let args: Args = Cli::parse().into();
+fn main() -> Result<(), anyhow::Error> {
+    let args = Cli::parse();
     let contents = GeminiReq::from(vec![Content::from(vec![Part::from(format!(
         "{}\n\n{}",
         args.prompt, args.text
@@ -62,32 +63,32 @@ fn main() {
         .post(&url)
         .query(&[("key", args.key)])
         .json(&contents)
-        .send();
-    match res {
-        Ok(res) => match res.status() {
-            StatusCode::OK => {
-                let text = res
-                    .json::<GeminiRes>()
-                    .unwrap()
-                    .candidates
-                    .first()
-                    .unwrap()
-                    .content
-                    .parts
-                    .first()
-                    .unwrap()
-                    .text
-                    .clone();
-                println!("{}", text);
-            }
-            _ => {
-                eprintln!("状态码错误");
-                std::process::exit(1);
-            }
-        },
-        Err(e) => {
-            eprintln!("响应错误: {}", e);
-            std::process::exit(1);
+        .send()
+        .map_err(|_| anyhow!("请求发送失败"))?;
+    match res.status() {
+        StatusCode::OK => {
+            let gemini_res: GeminiRes = res
+                .json()
+                .map_err(|_| anyhow!("解析请求体失败"))?;
+            let first_candidate = gemini_res
+                .candidates
+                .into_iter()
+                .next()
+                .ok_or_else(|| anyhow!("获取candidate失败"))?;
+            let first_part = first_candidate
+                .content
+                .parts
+                .into_iter()
+                .next()
+                .ok_or_else(|| anyhow!("获取part失败"))?;
+            println!("{}", first_part.text);
+            Ok(())
+        }
+        status => {
+            Err(anyhow!(
+                "状态码错误: {}",
+                status,
+            ))
         }
     }
 }
