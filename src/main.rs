@@ -1,19 +1,8 @@
-use clap::Parser;
+mod cli;
+
+use cli::{Args, Cli};
 use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
-use std::env;
-
-#[derive(Parser)]
-#[command(name = "transome")]
-#[command(version = "v0.1.0")]
-#[command(about = "A simple command line translation tool", long_about = None)]
-struct Cli {
-    text: String,
-    #[arg(short, long, default_value_t = String::from("gemini-2.5-flash-lite-preview-06-17"))]
-    model: String,
-    #[arg(short, long)]
-    key: Option<String>,
-}
 
 #[derive(Debug, Deserialize)]
 struct GeminiRes {
@@ -59,32 +48,19 @@ impl From<Vec<Content>> for GeminiReq {
 }
 
 fn main() {
-    let cli = Cli::parse();
-    let prompt = String::from(
-        "你是一个极简翻译工具，接下来我将输入一段内容，请按照以下规则将它翻译：1、如果输入内容是中文则翻译成英文，反之亦然。2、仅输出翻译后的内容，不要携带其他内容。3、如果翻译后的内容是单个词语，则首字母不需要大写。",
-    );
+    let args: Args = Cli::parse().into();
     let contents = GeminiReq::from(vec![Content::from(vec![Part::from(format!(
         "{}\n\n{}",
-        prompt, cli.text
+        args.prompt, args.text
     ))])]);
     let client = reqwest::blocking::Client::new();
-    let api_key = match cli.key {
-        Some(key) => key,
-        None => match env::var("GOOGLE_AI_API_KEY") {
-            Ok(key) => key,
-            Err(e) => {
-                eprintln!("获取Key错误: {}", e);
-                std::process::exit(1);
-            }
-        },
-    };
     let url = format!(
         "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent",
-        cli.model
+        args.model
     );
     let res = client
         .post(&url)
-        .query(&[("key", api_key)])
+        .query(&[("key", args.key)])
         .json(&contents)
         .send();
     match res {
