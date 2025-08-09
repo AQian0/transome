@@ -1,6 +1,6 @@
 mod cli;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use async_openai::{
     Client,
     config::OpenAIConfig,
@@ -38,7 +38,7 @@ async fn main() -> Result<(), anyhow::Error> {
             }
         }
         Err(e) => {
-            return Err(e.into());
+            bail!(e);
         }
     }
     Ok(())
