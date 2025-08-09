@@ -13,27 +13,15 @@ pub use cli::Cli;
 
 // 从 config 模块导出
 pub use config::{
-    ModelConfig,
-    get_model_url,
-    get_provider_name,
-    get_all_models,
-    list_models,
-    create_model_error_message,
-    is_model_supported as config_is_model_supported,
-    get_supported_model_names,
+    ModelConfig, create_model_error_message, get_all_models, get_model_url, get_provider_name,
+    get_supported_model_names, is_model_supported as config_is_model_supported, list_models,
 };
 
 // 从 error 模块导出
-pub use error::{
-    TransomeError,
-    Result,
-};
+pub use error::{Result, TransomeError};
 
 // 从 translator 模块导出
-pub use translator::{
-    Translator,
-    PROMPT,
-};
+pub use translator::{PROMPT, Translator};
 
 // 类型别名和常量
 /// 版本号
@@ -58,15 +46,12 @@ pub fn create_translator(
 ) -> LibResult<Translator> {
     let api_base = match custom_url {
         Some(url) => url,
-        None => {
-            get_model_url(&model)
-                .ok_or_else(|| {
-                    let available_models = get_supported_model_names();
-                    TransomeError::model_not_found(model.clone(), available_models)
-                })?
-        }
+        None => get_model_url(&model).ok_or_else(|| {
+            let available_models = get_supported_model_names();
+            TransomeError::model_not_found(model.clone(), available_models)
+        })?,
     };
-    
+
     Ok(Translator::new(api_key, api_base, model))
 }
 
@@ -124,11 +109,7 @@ mod tests {
 
     #[test]
     fn test_create_translator_with_valid_model() {
-        let result = create_translator(
-            "test-key".to_string(),
-            "gpt-4".to_string(),
-            None,
-        );
+        let result = create_translator("test-key".to_string(), "gpt-4".to_string(), None);
         assert!(result.is_ok());
     }
 
@@ -140,7 +121,7 @@ mod tests {
             None,
         );
         assert!(result.is_err());
-        
+
         if let Err(TransomeError::ModelNotFound { model_name, .. }) = result {
             assert_eq!(model_name, "nonexistent-model");
         } else {

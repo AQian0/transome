@@ -13,7 +13,11 @@ pub struct ModelConfig {
 
 impl ModelConfig {
     /// 创建新的模型配置实例
-    pub fn new(name: impl Into<String>, url: impl Into<String>, provider: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        url: impl Into<String>,
+        provider: impl Into<String>,
+    ) -> Self {
         Self {
             name: name.into(),
             url: url.into(),
@@ -30,12 +34,26 @@ fn get_model_to_url() -> &'static HashMap<&'static str, &'static str> {
     MODEL_TO_URL.get_or_init(|| {
         HashMap::from([
             // Google Gemini 模型 - 使用 OpenAI 兼容端点
-            ("gemini-2.5-pro", "https://generativelanguage.googleapis.com/v1beta/openai"),
-            ("gemini-2.5-flash", "https://generativelanguage.googleapis.com/v1beta/openai"),
-            ("gemini-2.5-flash-lite", "https://generativelanguage.googleapis.com/v1beta/openai"),
-            ("gemini-1.5-pro", "https://generativelanguage.googleapis.com/v1beta/openai"),
-            ("gemini-1.5-flash", "https://generativelanguage.googleapis.com/v1beta/openai"),
-            
+            (
+                "gemini-2.5-pro",
+                "https://generativelanguage.googleapis.com/v1beta/openai",
+            ),
+            (
+                "gemini-2.5-flash",
+                "https://generativelanguage.googleapis.com/v1beta/openai",
+            ),
+            (
+                "gemini-2.5-flash-lite",
+                "https://generativelanguage.googleapis.com/v1beta/openai",
+            ),
+            (
+                "gemini-1.5-pro",
+                "https://generativelanguage.googleapis.com/v1beta/openai",
+            ),
+            (
+                "gemini-1.5-flash",
+                "https://generativelanguage.googleapis.com/v1beta/openai",
+            ),
             // OpenAI 模型 - 官方 API 端点
             ("gpt-4", "https://api.openai.com/v1"),
             ("gpt-4-turbo", "https://api.openai.com/v1"),
@@ -76,12 +94,12 @@ pub fn get_provider_name(model_or_url: &str) -> &'static str {
 fn group_models_by_provider() -> HashMap<&'static str, Vec<(&'static str, &'static str)>> {
     let model_to_url = get_model_to_url();
     let mut providers: HashMap<&str, Vec<(&str, &str)>> = HashMap::new();
-    
+
     for (&model, &url) in model_to_url.iter() {
         let provider = get_provider_name(model);
         providers.entry(provider).or_default().push((model, url));
     }
-    
+
     providers
 }
 
@@ -90,21 +108,21 @@ fn get_sorted_providers_with_models() -> Vec<(&'static str, Vec<(&'static str, &
     let providers = group_models_by_provider();
     let mut sorted_providers: Vec<_> = providers.into_iter().collect();
     sorted_providers.sort_by_key(|&(name, _)| name);
-    
+
     // 对每个提供商内的模型进行排序
     for (_, models) in &mut sorted_providers {
         models.sort_by_key(|&(model, _)| model);
     }
-    
+
     sorted_providers
 }
 
 /// 列出所有支持的模型
 pub fn list_models() {
     println!("\n支持的模型:");
-    
+
     let sorted_providers = get_sorted_providers_with_models();
-    
+
     for (provider, models) in sorted_providers {
         if let Some((_, first_url)) = models.first() {
             println!("\n{} ({}):", provider, first_url);
@@ -113,7 +131,7 @@ pub fn list_models() {
             }
         }
     }
-    
+
     println!("\n使用方法:");
     println!("  transome [选项] [文本]");
     println!("\n选项:");
@@ -128,37 +146,38 @@ pub fn list_models() {
 pub fn get_all_models() -> Vec<ModelConfig> {
     let model_to_url = get_model_to_url();
     let mut models = Vec::new();
-    
+
     for (&model, &url) in model_to_url.iter() {
         let provider = get_provider_name(model);
         models.push(ModelConfig::new(model, url, provider));
     }
-    
+
     // 首先按提供商排序，然后按模型名称排序以保持一致的顺序
     models.sort_by(|a, b| {
-        a.provider.cmp(&b.provider)
+        a.provider
+            .cmp(&b.provider)
             .then_with(|| a.name.cmp(&b.name))
     });
-    
+
     models
 }
 
 /// 为不支持的模型创建错误消息
 pub fn create_model_error_message(model: &str) -> String {
     let sorted_providers = get_sorted_providers_with_models();
-    
+
     let mut error_msg = format!("找不到模型 '{}'\n\n支持的模型:", model);
-    
+
     for (provider, models) in sorted_providers {
         let model_names: Vec<&str> = models.iter().map(|&(name, _)| name).collect();
         error_msg.push_str(&format!("\n\n{}: {}", provider, model_names.join(", ")));
     }
-    
+
     error_msg.push_str("\n\n使用方法:");
     error_msg.push_str("\n  使用支持的模型: transome -m <模型名称> \"<文本>\"");
     error_msg.push_str("\n  或提供自定义 URL: transome -u <URL> -m <模型名称> \"<文本>\"");
     error_msg.push_str("\n  列出所有模型: transome --list-models");
-    
+
     error_msg
 }
 
@@ -175,7 +194,7 @@ pub fn get_supported_model_names() -> Vec<String> {
 /// 根据模型名称获取对应的环境变量名
 pub fn get_env_var_name_for_model(model: &str) -> Option<&'static str> {
     let provider = get_provider_name(model);
-    
+
     match provider {
         "OpenAI" => Some("OPENAI_API_KEY"),
         "Google Gemini" => Some("GOOGLE_AI_API_KEY"),
@@ -189,18 +208,24 @@ mod tests {
 
     #[test]
     fn test_get_model_url() {
-        assert_eq!(get_model_url("gpt-4"), Some("https://api.openai.com/v1".to_string()));
-        assert_eq!(get_model_url("gemini-2.5-flash"), Some("https://generativelanguage.googleapis.com/v1beta/openai".to_string()));
+        assert_eq!(
+            get_model_url("gpt-4"),
+            Some("https://api.openai.com/v1".to_string())
+        );
+        assert_eq!(
+            get_model_url("gemini-2.5-flash"),
+            Some("https://generativelanguage.googleapis.com/v1beta/openai".to_string())
+        );
         assert_eq!(get_model_url("nonexistent"), None);
     }
-    
+
     #[test]
     fn test_is_model_supported() {
         assert!(is_model_supported("gpt-4"));
         assert!(is_model_supported("gemini-2.5-flash"));
         assert!(!is_model_supported("nonexistent-model"));
     }
-    
+
     #[test]
     fn test_get_supported_model_names() {
         let models = get_supported_model_names();
@@ -221,7 +246,7 @@ mod tests {
     fn test_get_all_models() {
         let models = get_all_models();
         assert!(!models.is_empty());
-        
+
         // 检查是否包含两个提供商的模型
         let has_openai = models.iter().any(|m| m.provider == "OpenAI");
         let has_gemini = models.iter().any(|m| m.provider == "Google Gemini");
@@ -236,7 +261,7 @@ mod tests {
         assert_eq!(config.url, "https://test.com");
         assert_eq!(config.provider, "TestProvider");
     }
-    
+
     #[test]
     fn test_group_models_by_provider() {
         let providers = group_models_by_provider();
@@ -244,25 +269,25 @@ mod tests {
         assert!(providers.contains_key("OpenAI"));
         assert!(providers.contains_key("Google Gemini"));
     }
-    
+
     #[test]
     fn test_get_sorted_providers_with_models() {
         let sorted_providers = get_sorted_providers_with_models();
         assert!(!sorted_providers.is_empty());
-        
+
         // 检查提供商是否按字母顺序排序
         for i in 1..sorted_providers.len() {
-            assert!(sorted_providers[i-1].0 <= sorted_providers[i].0);
+            assert!(sorted_providers[i - 1].0 <= sorted_providers[i].0);
         }
-        
+
         // 检查每个提供商内的模型是否已排序
         for (_, models) in sorted_providers {
             for i in 1..models.len() {
-                assert!(models[i-1].0 <= models[i].0);
+                assert!(models[i - 1].0 <= models[i].0);
             }
         }
     }
-    
+
     #[test]
     fn test_create_model_error_message() {
         let error_msg = create_model_error_message("nonexistent-model");
@@ -273,67 +298,115 @@ mod tests {
         assert!(error_msg.contains("Google Gemini"));
         assert!(error_msg.contains("使用方法"));
     }
-    
+
     #[test]
     fn test_get_env_var_name_for_model() {
         // Test OpenAI models
         assert_eq!(get_env_var_name_for_model("gpt-4"), Some("OPENAI_API_KEY"));
         assert_eq!(get_env_var_name_for_model("gpt-4o"), Some("OPENAI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gpt-3.5-turbo"), Some("OPENAI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gpt-4-turbo"), Some("OPENAI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gpt-4o-mini"), Some("OPENAI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gpt-3.5-turbo-16k"), Some("OPENAI_API_KEY"));
-        
+        assert_eq!(
+            get_env_var_name_for_model("gpt-3.5-turbo"),
+            Some("OPENAI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gpt-4-turbo"),
+            Some("OPENAI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gpt-4o-mini"),
+            Some("OPENAI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gpt-3.5-turbo-16k"),
+            Some("OPENAI_API_KEY")
+        );
+
         // Test Google Gemini models
-        assert_eq!(get_env_var_name_for_model("gemini-2.5-flash"), Some("GOOGLE_AI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gemini-1.5-pro"), Some("GOOGLE_AI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gemini-2.5-pro"), Some("GOOGLE_AI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gemini-2.5-flash-lite"), Some("GOOGLE_AI_API_KEY"));
-        assert_eq!(get_env_var_name_for_model("gemini-1.5-flash"), Some("GOOGLE_AI_API_KEY"));
-        
+        assert_eq!(
+            get_env_var_name_for_model("gemini-2.5-flash"),
+            Some("GOOGLE_AI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gemini-1.5-pro"),
+            Some("GOOGLE_AI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gemini-2.5-pro"),
+            Some("GOOGLE_AI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gemini-2.5-flash-lite"),
+            Some("GOOGLE_AI_API_KEY")
+        );
+        assert_eq!(
+            get_env_var_name_for_model("gemini-1.5-flash"),
+            Some("GOOGLE_AI_API_KEY")
+        );
+
         // Test unsupported models
         assert_eq!(get_env_var_name_for_model("nonexistent-model"), None);
         assert_eq!(get_env_var_name_for_model("claude-3"), None);
         assert_eq!(get_env_var_name_for_model("llama-2"), None);
-        
+
         // Test URL input (should return None for non-model URLs)
         assert_eq!(get_env_var_name_for_model("https://custom.api.com"), None);
         assert_eq!(get_env_var_name_for_model("http://localhost:8080"), None);
     }
-    
+
     #[test]
     fn test_get_env_var_name_for_model_comprehensive() {
         // Test that each supported model returns the correct environment variable
-        let openai_models = vec!["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gpt-3.5-turbo-16k"];
-        let gemini_models = vec!["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-pro", "gemini-1.5-flash"];
-        
+        let openai_models = vec![
+            "gpt-4",
+            "gpt-4-turbo",
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
+        ];
+        let gemini_models = vec![
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+        ];
+
         // All OpenAI models should return OPENAI_API_KEY
         for model in openai_models {
-            assert_eq!(get_env_var_name_for_model(model), Some("OPENAI_API_KEY"), 
-                      "Model {} should return OPENAI_API_KEY", model);
+            assert_eq!(
+                get_env_var_name_for_model(model),
+                Some("OPENAI_API_KEY"),
+                "Model {} should return OPENAI_API_KEY",
+                model
+            );
         }
-        
+
         // All Gemini models should return GOOGLE_AI_API_KEY
         for model in gemini_models {
-            assert_eq!(get_env_var_name_for_model(model), Some("GOOGLE_AI_API_KEY"), 
-                      "Model {} should return GOOGLE_AI_API_KEY", model);
+            assert_eq!(
+                get_env_var_name_for_model(model),
+                Some("GOOGLE_AI_API_KEY"),
+                "Model {} should return GOOGLE_AI_API_KEY",
+                model
+            );
         }
     }
-    
+
     #[test]
     fn test_get_env_var_name_for_model_edge_cases() {
         // Test empty string
         assert_eq!(get_env_var_name_for_model(""), None);
-        
+
         // Test strings with similar prefixes but not exact matches
         assert_eq!(get_env_var_name_for_model("gpt"), None);
         assert_eq!(get_env_var_name_for_model("gemini"), None);
         assert_eq!(get_env_var_name_for_model("gpt-5"), None); // 假设的未来模型
-        
+
         // Test case sensitivity - our models are lowercase, so uppercase should fail
         assert_eq!(get_env_var_name_for_model("GPT-4"), None);
         assert_eq!(get_env_var_name_for_model("GEMINI-2.5-FLASH"), None);
-        
+
         // Test with extra whitespace (should fail because we don't trim)
         assert_eq!(get_env_var_name_for_model(" gpt-4 "), None);
         assert_eq!(get_env_var_name_for_model("gpt-4\n"), None);
