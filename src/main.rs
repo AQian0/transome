@@ -11,9 +11,25 @@ use cli::Cli;
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
     let args = Cli::parse();
+    
+    // Handle --list-models flag
+    if args.list_models {
+        Cli::list_all_models();
+        return Ok(());
+    }
+    
+    // Check if text is provided
+    let text = match &args.text {
+        Some(t) => t.clone(),
+        None => {
+            bail!("Text to translate is required.\n\nUsage:\n  transome [OPTIONS] <TEXT>\n\nFor more information, use: transome --help");
+        }
+    };
+    
+    let url = args.resolve_url()?;
     let config = OpenAIConfig::new()
         .with_api_key(args.key)
-        .with_api_base(args.url);
+        .with_api_base(url);
     let client = Client::with_config(config);
     let req = CreateChatCompletionRequestArgs::default()
         .model(args.model)
@@ -23,7 +39,7 @@ async fn main() -> Result<(), anyhow::Error> {
                 .build()?
                 .into(),
             ChatCompletionRequestUserMessageArgs::default()
-                .content(args.text)
+                .content(text)
                 .build()?
                 .into(),
         ])
