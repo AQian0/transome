@@ -7,56 +7,67 @@ use std::io;
 /// 错误类型定义
 #[derive(Debug)]
 pub enum TransomeError {
+    /// 模型未找到错误
     ModelNotFound {
         model_name: String,
         available_models: Vec<String>,
     },
     
+    /// API调用失败错误
     ApiCallFailed {
         endpoint: String,
         status_code: Option<u16>,
         message: String,
     },
     
+    /// 网络错误
     NetworkError {
         source: reqwest::Error,
     },
     
+    /// JSON解析错误
     JsonError {
         source: serde_json::Error,
         context: String,
     },
     
+    /// IO错误
     IoError {
         source: io::Error,
         context: String,
     },
     
+    /// 认证错误
     AuthenticationError {
         message: String,
     },
     
+    /// 配置错误
     ConfigError {
         field: String,
         message: String,
     },
     
+    /// 验证错误
     ValidationError {
         field: String,
         expected: String,
         actual: String,
     },
     
+    /// 模型加载错误
     ModelLoadError {
         model_path: String,
         reason: String,
     },
     
+    /// 翻译服务错误
     TranslationServiceError {
         service: String,
         message: String,
     },
     
+    /// 通用错误
     General {
         message: String,
     },
@@ -339,6 +350,7 @@ mod tests {
     
     #[test]
     fn test_model_not_found_error() {
+        // 测试模型未找到错误
         let error = TransomeError::model_not_found("gpt-4", vec!["gpt-3.5".to_string()]);
         assert!(error.to_string().contains("gpt-4"));
         assert!(error.to_string().contains("gpt-3.5"));
@@ -346,6 +358,7 @@ mod tests {
     
     #[test]
     fn test_api_call_failed_error() {
+        // 测试API调用失败错误
         let error = TransomeError::api_call_failed("/api/translate", Some(404), "Not found");
         assert!(error.to_string().contains("404"));
         assert!(error.to_string().contains("/api/translate"));
@@ -353,6 +366,7 @@ mod tests {
     
     #[test]
     fn test_user_friendly_message() {
+        // 测试用户友好错误消息
         let error = TransomeError::model_not_found("gpt-4", vec!["gpt-3.5".to_string()]);
         let friendly = error.user_friendly_message();
         assert!(friendly.contains("找不到模型"));
@@ -361,6 +375,7 @@ mod tests {
     
     #[test]
     fn test_error_type_checks() {
+        // 测试错误类型检查
         let auth_error = TransomeError::authentication_error("Invalid key");
         assert!(auth_error.is_auth_error());
         
@@ -373,6 +388,7 @@ mod tests {
     
     #[test]
     fn test_from_conversions() {
+        // 测试类型转换
         let string_error: TransomeError = "test error".into();
         assert!(matches!(string_error, TransomeError::General { .. }));
         

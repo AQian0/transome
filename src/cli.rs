@@ -71,12 +71,12 @@ impl Cli {
     /// - 必须提供API密钥
     /// - 必须支持所选模型（除非提供了自定义URL）
     pub fn validate(&self) -> Result<()> {
-        // Skip validation if just listing models
+        // 如果只是列出模型则跳过验证
         if self.list_models {
             return Ok(());
         }
         
-        // Validate text input
+        // 验证文本输入
         match &self.text {
             Some(text) if text.trim().is_empty() => {
                 bail!(
@@ -85,7 +85,7 @@ impl Cli {
                     For more information, use: transome --help"
                 );
             },
-            Some(_) => {}, // Valid non-empty text
+            Some(_) => {}, // 有效的非空文本
             None => {
                 bail!(
                     "Text to translate is required.\n\n\
@@ -95,7 +95,7 @@ impl Cli {
             }
         }
         
-        // Validate API key
+        // 验证API密钥
         if self.key.trim().is_empty() {
             bail!(
                 "API key is required. Please provide it via:\n\n\
@@ -105,7 +105,7 @@ impl Cli {
             );
         }
         
-        // Validate model (only if no custom URL is provided)
+        // 验证模型（仅在未提供自定义URL时）
         if self.url.is_none() && !config::is_model_supported(&self.model) {
             bail!("{}", config::create_model_error_message(&self.model));
         }

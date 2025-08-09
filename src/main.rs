@@ -14,25 +14,25 @@ async fn main() -> Result<()> {
 
 /// 主程序逻辑
 async fn run() -> Result<()> {
-    // Parse command line arguments
+    // 解析命令行参数
     let args = Cli::parse();
     
-    // Handle model listing request early
+    // 处理模型列表请求
     if args.list_models {
         handle_list_models();
         return Ok(());
     }
     
-    // Perform comprehensive validation
+    // 执行全面验证
     args.validate()?;
     
-    // Extract validated text - we know it's safe after validation
+    // 提取验证后的文本 - 验证后已确保安全
     let text = args.text.as_ref().unwrap();
     
-    // Resolve API URL from model or custom URL
+    // 从模型或自定义URL解析API地址
     let url = args.resolve_url()?;
     
-    // Execute translation with better error context
+    // 执行翻译并提供更好的错误上下文
     let result = execute_translation(&args, text, &url).await
         .map_err(|e| {
             anyhow::anyhow!(
@@ -45,7 +45,6 @@ async fn run() -> Result<()> {
             )
         })?;
     
-    // Output the result
     println!("{}", result);
     
     Ok(())
@@ -59,13 +58,13 @@ fn handle_list_models() {
 
 /// 执行翻译
 async fn execute_translation(args: &Cli, text: &str, url: &str) -> Result<String> {
-    // Create translator instance with resolved configuration
+    // 使用解析后的配置创建翻译器实例
     let translator = Translator::new(
         args.key.clone(), 
         url.to_string(), 
         args.model.clone()
     );
     
-    // Perform translation with custom or default prompt
+    // 使用自定义或默认提示执行翻译
     translator.translate(text, Some(&args.prompt)).await
 }

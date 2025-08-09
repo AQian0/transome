@@ -211,7 +211,7 @@ mod tests {
         let models = get_all_models();
         assert!(!models.is_empty());
         
-        // Check that we have models from both providers
+        // 检查是否包含两个提供商的模型
         let has_openai = models.iter().any(|m| m.provider == "OpenAI");
         let has_gemini = models.iter().any(|m| m.provider == "Google Gemini");
         assert!(has_openai);
@@ -239,12 +239,12 @@ mod tests {
         let sorted_providers = get_sorted_providers_with_models();
         assert!(!sorted_providers.is_empty());
         
-        // Check that providers are sorted alphabetically
+        // 检查提供商是否按字母顺序排序
         for i in 1..sorted_providers.len() {
             assert!(sorted_providers[i-1].0 <= sorted_providers[i].0);
         }
         
-        // Check that models within each provider are sorted
+        // 检查每个提供商内的模型是否已排序
         for (_, models) in sorted_providers {
             for i in 1..models.len() {
                 assert!(models[i-1].0 <= models[i].0);

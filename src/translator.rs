@@ -33,7 +33,7 @@ impl Translator {
 
     /// 执行文本翻译
     pub async fn translate(&self, text: &str, prompt: Option<&str>) -> Result<String> {
-        // Validate input text
+        // 验证输入文本
         if text.trim().is_empty() {
             return Err(anyhow!(
                 "Translation text cannot be empty.\n\n\
@@ -43,11 +43,11 @@ impl Translator {
 
         let prompt_text = prompt.unwrap_or(PROMPT);
         
-        // Construct the chat completion request
+        // 构建聊天完成请求
         let req = CreateChatCompletionRequestArgs::default()
             .model(&self.model)
             .messages([
-                // System/instruction message with the prompt
+                // 系统/指令消息
                 ChatCompletionRequestUserMessageArgs::default()
                     .content(prompt_text)
                     .build()
@@ -57,7 +57,7 @@ impl Translator {
                         Please check your prompt content.", e
                     ))?
                     .into(),
-                // User message with the text to translate
+                // 用户消息包含待翻译文本
                 ChatCompletionRequestUserMessageArgs::default()
                     .content(text)
                     .build()
@@ -75,7 +75,7 @@ impl Translator {
                 Please check your configuration.", e
             ))?;
 
-        // Send the request and handle the response
+        // 发送请求并处理响应
         let response = self.client.chat().create(req).await
             .map_err(|e| {
                 let error_str = e.to_string();
@@ -115,7 +115,7 @@ impl Translator {
                 }
             })?;
 
-        // Validate response structure
+        // 验证响应结构
         if response.choices.is_empty() {
             return Err(anyhow!(
                 "No translation results in API response.\n\n\
@@ -124,7 +124,7 @@ impl Translator {
             ));
         }
 
-        // Extract and combine all response content
+        // 提取并合并所有响应内容
         let mut result = String::new();
         for choice in response.choices {
             if let Some(content) = choice.message.content {
@@ -135,7 +135,6 @@ impl Translator {
             }
         }
 
-        // Validate final result
         if result.trim().is_empty() {
             return Err(anyhow!(
                 "Translation result is empty.\n\n\
