@@ -8,6 +8,8 @@ const PROMPT: &str = "你是一个极简翻译工具，接下来我将输入一�
 #[command(about = "A simple command line translation tool", long_about = None)]
 pub struct Cli {
     pub text: String,
+    #[arg(short, long, default_value_t = String::from("https://generativelanguage.googleapis.com/v1beta/openai"))]
+    pub url: String,
     #[arg(short, long, default_value_t = String::from("gemini-2.5-flash-lite-preview-06-17"))]
     pub model: String,
     #[arg(short, long, env = "GOOGLE_AI_API_KEY")]
