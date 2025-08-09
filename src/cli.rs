@@ -108,7 +108,7 @@ impl Cli {
             } else {
                 "Other"
             };
-            providers.entry(provider).or_insert_with(Vec::new).push((model, url));
+            providers.entry(provider).or_default().push((model, url));
         }
         
         // Sort providers alphabetically and display
@@ -162,7 +162,7 @@ impl Cli {
                 } else {
                     "Other"
                 };
-                providers.entry(provider).or_insert_with(Vec::new).push(model);
+                providers.entry(provider).or_default().push(model);
             }
             
             let mut error_msg = format!("Model '{}' not found.\n\nSupported models:", self.model);
