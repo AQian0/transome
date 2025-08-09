@@ -110,14 +110,6 @@ impl Cli {
                     "Google Gemini"
                 } else if url.contains("api.openai.com") {
                     "OpenAI"
-                } else if url.contains("api.anthropic.com") {
-                    "Anthropic"
-                } else if url.contains("api.cohere.ai") {
-                    "Cohere"
-                } else if url.contains("api.mistral.ai") {
-                    "Mistral"
-                } else if url.contains("api.perplexity.ai") {
-                    "Perplexity"
                 } else {
                     "Other"
                 };
