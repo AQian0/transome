@@ -80,9 +80,13 @@ mod tests {
 
     #[test]
     fn test_version_constants() {
-        assert!(!VERSION.is_empty());
-        assert!(!NAME.is_empty());
+        // Test that constants have expected values
         assert_eq!(NAME, "transome");
+        // VERSION should be a valid semver string
+        assert!(VERSION.chars().any(|c| c.is_ascii_digit()));
+        // DESCRIPTION should be present now
+        assert!(!DESCRIPTION.is_empty());
+        assert!(DESCRIPTION.contains("translation"));
     }
 
     #[test]
