@@ -101,7 +101,7 @@ fn get_sorted_providers_with_models() -> Vec<(&'static str, Vec<(&'static str, &
 
 /// 列出所有支持的模型
 pub fn list_models() {
-    println!("\nSupported models:");
+    println!("\n支持的模型:");
     
     let sorted_providers = get_sorted_providers_with_models();
     
@@ -114,12 +114,12 @@ pub fn list_models() {
         }
     }
     
-    println!("\nUsage:");
-    println!("  transome [OPTIONS] [TEXT]");
-    println!("\nOptions:");
-    println!("  -m, --model <MODEL>    Use a supported model from the list above");
-    println!("  -u, --url <URL>        Use a custom API URL (overrides model selection)");
-    println!("\nExamples:");
+    println!("\n使用方法:");
+    println!("  transome [选项] [文本]");
+    println!("\n选项:");
+    println!("  -m, --model <模型>    使用上述列表中的支持模型");
+    println!("  -u, --url <地址>      使用自定义 API 地址（覆盖模型选择）");
+    println!("\n示例:");
     println!("  transome -m gpt-4 \"Hello world\"");
     println!("  transome -u https://custom.api.com/v1 -m custom-model \"Hello world\"");
 }
@@ -147,17 +147,17 @@ pub fn get_all_models() -> Vec<ModelConfig> {
 pub fn create_model_error_message(model: &str) -> String {
     let sorted_providers = get_sorted_providers_with_models();
     
-    let mut error_msg = format!("Model '{}' not found.\n\nSupported models:", model);
+    let mut error_msg = format!("找不到模型 '{}'\n\n支持的模型:", model);
     
     for (provider, models) in sorted_providers {
         let model_names: Vec<&str> = models.iter().map(|&(name, _)| name).collect();
         error_msg.push_str(&format!("\n\n{}: {}", provider, model_names.join(", ")));
     }
     
-    error_msg.push_str("\n\nUsage:");
-    error_msg.push_str("\n  Use one of the supported models: transome -m <MODEL> \"<text>\"");
-    error_msg.push_str("\n  Or provide a custom URL: transome -u <URL> -m <MODEL> \"<text>\"");
-    error_msg.push_str("\n  List all models: transome --list-models");
+    error_msg.push_str("\n\n使用方法:");
+    error_msg.push_str("\n  使用支持的模型: transome -m <模型名称> \"<文本>\"");
+    error_msg.push_str("\n  或提供自定义 URL: transome -u <URL> -m <模型名称> \"<文本>\"");
+    error_msg.push_str("\n  列出所有模型: transome --list-models");
     
     error_msg
 }
@@ -256,10 +256,10 @@ mod tests {
     fn test_create_model_error_message() {
         let error_msg = create_model_error_message("nonexistent-model");
         assert!(error_msg.contains("nonexistent-model"));
-        assert!(error_msg.contains("Model"));
-        assert!(error_msg.contains("not found"));
+        assert!(error_msg.contains("找不到模型"));
+        assert!(error_msg.contains("支持的模型"));
         assert!(error_msg.contains("OpenAI"));
         assert!(error_msg.contains("Google Gemini"));
-        assert!(error_msg.contains("Usage"));
+        assert!(error_msg.contains("使用方法"));
     }
 }

@@ -6,7 +6,7 @@ use transome::{Cli, Translator};
 #[tokio::main]
 async fn main() -> Result<()> {
     if let Err(e) = run().await {
-        eprintln!("Error: {}", e);
+        eprintln!("错误: {}", e);
         std::process::exit(1);
     }
     Ok(())
@@ -36,12 +36,12 @@ async fn run() -> Result<()> {
     let result = execute_translation(&args, text, &url).await
         .map_err(|e| {
             anyhow::anyhow!(
-                "Translation failed: {}\n\n\
-                Troubleshooting tips:\n\
-                - Verify your API key is correct\n\
-                - Check your internet connection\n\
-                - Try a different model with --model <MODEL>\n\
-                - Use --list-models to see available options", e
+                "翻译失败: {}\n\n\
+                故障排除建议:\n\
+                - 验证您的 API 密钥是否正确\n\
+                - 检查您的网络连接\n\
+                - 使用 --model <MODEL> 尝试不同的模型\n\
+                - 使用 --list-models 查看可用选项", e
             )
         })?;
     

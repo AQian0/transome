@@ -36,8 +36,8 @@ impl Translator {
         // 验证输入文本
         if text.trim().is_empty() {
             return Err(anyhow!(
-                "Translation text cannot be empty.\n\n\
-                Please provide non-empty text to translate."
+                "翻译文本不能为空\n\n\
+                请提供非空的文本进行翻译"
             ));
         }
 
@@ -52,9 +52,9 @@ impl Translator {
                     .content(prompt_text)
                     .build()
                     .map_err(|e| anyhow!(
-                        "Failed to build prompt message: {}\n\n\
-                        This is likely due to an invalid prompt format. \
-                        Please check your prompt content.", e
+                        "构建提示消息失败: {}\n\n\
+                        这可能是由于提示格式无效导致的。\
+                        请检查您的提示内容。", e
                     ))?
                     .into(),
                 // 用户消息包含待翻译文本
@@ -62,17 +62,17 @@ impl Translator {
                     .content(text)
                     .build()
                     .map_err(|e| anyhow!(
-                        "Failed to build user message: {}\n\n\
-                        This is likely due to invalid text content. \
-                        Please check your input text.", e
+                        "构建用户消息失败: {}\n\n\
+                        这可能是由于无效的文本内容导致的。\
+                        请检查您的输入文本。", e
                     ))?
                     .into(),
             ])
             .build()
             .map_err(|e| anyhow!(
-                "Failed to build chat request: {}\n\n\
-                This may be due to invalid model name or request parameters. \
-                Please check your configuration.", e
+                "构建聊天请求失败: {}\n\n\
+                这可能是由于无效的模型名称或请求参数导致的。\
+                请检查您的配置。", e
             ))?;
 
         // 发送请求并处理响应
@@ -81,36 +81,36 @@ impl Translator {
                 let error_str = e.to_string();
                 if error_str.contains("401") || error_str.contains("authentication") {
                     anyhow!(
-                        "Authentication failed: {}\n\n\
-                        Please check that your API key is correct and has the necessary permissions.\n\
-                        For OpenAI: Ensure your API key starts with 'sk-'\n\
-                        For Gemini: Ensure you're using a valid Google AI API key", e
+                        "认证失败: {}\n\n\
+                        请检查您的 API 密钥是否正确并具有必要的权限。\n\
+                        对于 OpenAI: 确保您的 API 密钥以 'sk-' 开头\n\
+                        对于 Gemini: 确保您使用的是有效的 Google AI API 密钥", e
                     )
                 } else if error_str.contains("404") || error_str.contains("not found") {
                     anyhow!(
-                        "Model or endpoint not found: {}\n\n\
-                        Please verify that:\n\
-                        - The model name '{}' is correct and available\n\
-                        - The API endpoint is accessible\n\
-                        - You have permission to use this model", e, self.model
+                        "找不到模型或端点: {}\n\n\
+                        请验证以下内容:\n\
+                        - 模型名称 '{}' 是否正确且可用\n\
+                        - API 端点是否可访问\n\
+                        - 您是否有权使用此模型", e, self.model
                     )
                 } else if error_str.contains("429") || error_str.contains("rate limit") {
                     anyhow!(
-                        "Rate limit exceeded: {}\n\n\
-                        Please wait a moment before trying again. \
-                        Consider upgrading your API plan if this happens frequently.", e
+                        "超出频率限制: {}\n\n\
+                        请稍后再试。\
+                        如果频繁出现这种情况，请考虑升级您的 API 套餐。", e
                     )
                 } else if error_str.contains("timeout") || error_str.contains("connection") {
                     anyhow!(
-                        "Network error: {}\n\n\
-                        Please check your internet connection and try again.\n\
-                        If the problem persists, the API service may be temporarily unavailable.", e
+                        "网络错误: {}\n\n\
+                        请检查您的网络连接并重试。\n\
+                        如果问题持续，API 服务可能暂时不可用。", e
                     )
                 } else {
                     anyhow!(
-                        "API request failed: {}\n\n\
-                        Please check your network connection, API key, and model name.\n\
-                        If the problem persists, the AI service may be temporarily unavailable.", e
+                        "API 请求失败: {}\n\n\
+                        请检查您的网络连接、API 密钥和模型名称。\n\
+                        如果问题持续，AI 服务可能暂时不可用。", e
                     )
                 }
             })?;
@@ -118,9 +118,9 @@ impl Translator {
         // 验证响应结构
         if response.choices.is_empty() {
             return Err(anyhow!(
-                "No translation results in API response.\n\n\
-                This may indicate an issue with the AI model or service. \
-                Please try again or use a different model."
+                "API 响应中没有翻译结果\n\n\
+                这可能表明 AI 模型或服务存在问题。\
+                请重试或使用不同的模型。"
             ));
         }
 
@@ -137,12 +137,12 @@ impl Translator {
 
         if result.trim().is_empty() {
             return Err(anyhow!(
-                "Translation result is empty.\n\n\
-                The AI model returned an empty response. This may be due to:\n\
-                - The input text being unclear or untranslatable\n\
-                - Issues with the model or prompt\n\
-                - Temporary service problems\n\n\
-                Please try again with different text or check the model status."
+                "翻译结果为空\n\n\
+                AI 模型返回了空响应。这可能是由于:\n\
+                - 输入文本不清晰或无法翻译\n\
+                - 模型或提示存在问题\n\
+                - 服务暂时问题\n\n\
+                请使用不同的文本重试或检查模型状态。"
             ));
         }
 

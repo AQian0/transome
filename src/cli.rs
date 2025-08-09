@@ -80,17 +80,17 @@ impl Cli {
         match &self.text {
             Some(text) if text.trim().is_empty() => {
                 bail!(
-                    "Text to translate cannot be empty.\n\n\
-                    Usage: transome [OPTIONS] <TEXT>\n\n\
-                    For more information, use: transome --help"
+                    "要翻译的文本不能为空\n\n\
+                    使用方法: transome [选项] <文本>\n\n\
+                    获取更多信息，使用: transome --help"
                 );
             },
             Some(_) => {}, // 有效的非空文本
             None => {
                 bail!(
-                    "Text to translate is required.\n\n\
-                    Usage: transome [OPTIONS] <TEXT>\n\n\
-                    For more information, use: transome --help"
+                    "要翻译的文本是必需的\n\n\
+                    使用方法: transome [选项] <文本>\n\n\
+                    获取更多信息，使用: transome --help"
                 );
             }
         }
@@ -98,10 +98,10 @@ impl Cli {
         // 验证API密钥
         if self.key.trim().is_empty() {
             bail!(
-                "API key is required. Please provide it via:\n\n\
-                - Command line: transome -k <API_KEY> [OPTIONS] <TEXT>\n\
-                - Environment variable: export GOOGLE_AI_API_KEY=<API_KEY>\n\n\
-                For more information, use: transome --help"
+                "需要提供 API 密钥，可通过以下方式提供:\n\n\
+                - 命令行: transome -k <API_KEY> [选项] <文本>\n\
+                - 环境变量: export GOOGLE_AI_API_KEY=<API_KEY>\n\n\
+                获取更多信息，使用: transome --help"
             );
         }
         
