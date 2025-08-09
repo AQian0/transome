@@ -172,6 +172,17 @@ pub fn get_supported_model_names() -> Vec<String> {
     get_all_models().into_iter().map(|m| m.name).collect()
 }
 
+/// 根据模型名称获取对应的环境变量名
+pub fn get_env_var_name_for_model(model: &str) -> Option<&'static str> {
+    let provider = get_provider_name(model);
+    
+    match provider {
+        "OpenAI" => Some("OPENAI_API_KEY"),
+        "Google Gemini" => Some("GOOGLE_AI_API_KEY"),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -261,5 +272,70 @@ mod tests {
         assert!(error_msg.contains("OpenAI"));
         assert!(error_msg.contains("Google Gemini"));
         assert!(error_msg.contains("使用方法"));
+    }
+    
+    #[test]
+    fn test_get_env_var_name_for_model() {
+        // Test OpenAI models
+        assert_eq!(get_env_var_name_for_model("gpt-4"), Some("OPENAI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gpt-4o"), Some("OPENAI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gpt-3.5-turbo"), Some("OPENAI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gpt-4-turbo"), Some("OPENAI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gpt-4o-mini"), Some("OPENAI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gpt-3.5-turbo-16k"), Some("OPENAI_API_KEY"));
+        
+        // Test Google Gemini models
+        assert_eq!(get_env_var_name_for_model("gemini-2.5-flash"), Some("GOOGLE_AI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gemini-1.5-pro"), Some("GOOGLE_AI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gemini-2.5-pro"), Some("GOOGLE_AI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gemini-2.5-flash-lite"), Some("GOOGLE_AI_API_KEY"));
+        assert_eq!(get_env_var_name_for_model("gemini-1.5-flash"), Some("GOOGLE_AI_API_KEY"));
+        
+        // Test unsupported models
+        assert_eq!(get_env_var_name_for_model("nonexistent-model"), None);
+        assert_eq!(get_env_var_name_for_model("claude-3"), None);
+        assert_eq!(get_env_var_name_for_model("llama-2"), None);
+        
+        // Test URL input (should return None for non-model URLs)
+        assert_eq!(get_env_var_name_for_model("https://custom.api.com"), None);
+        assert_eq!(get_env_var_name_for_model("http://localhost:8080"), None);
+    }
+    
+    #[test]
+    fn test_get_env_var_name_for_model_comprehensive() {
+        // Test that each supported model returns the correct environment variable
+        let openai_models = vec!["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo", "gpt-3.5-turbo-16k"];
+        let gemini_models = vec!["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-1.5-pro", "gemini-1.5-flash"];
+        
+        // All OpenAI models should return OPENAI_API_KEY
+        for model in openai_models {
+            assert_eq!(get_env_var_name_for_model(model), Some("OPENAI_API_KEY"), 
+                      "Model {} should return OPENAI_API_KEY", model);
+        }
+        
+        // All Gemini models should return GOOGLE_AI_API_KEY
+        for model in gemini_models {
+            assert_eq!(get_env_var_name_for_model(model), Some("GOOGLE_AI_API_KEY"), 
+                      "Model {} should return GOOGLE_AI_API_KEY", model);
+        }
+    }
+    
+    #[test]
+    fn test_get_env_var_name_for_model_edge_cases() {
+        // Test empty string
+        assert_eq!(get_env_var_name_for_model(""), None);
+        
+        // Test strings with similar prefixes but not exact matches
+        assert_eq!(get_env_var_name_for_model("gpt"), None);
+        assert_eq!(get_env_var_name_for_model("gemini"), None);
+        assert_eq!(get_env_var_name_for_model("gpt-5"), None); // 假设的未来模型
+        
+        // Test case sensitivity - our models are lowercase, so uppercase should fail
+        assert_eq!(get_env_var_name_for_model("GPT-4"), None);
+        assert_eq!(get_env_var_name_for_model("GEMINI-2.5-FLASH"), None);
+        
+        // Test with extra whitespace (should fail because we don't trim)
+        assert_eq!(get_env_var_name_for_model(" gpt-4 "), None);
+        assert_eq!(get_env_var_name_for_model("gpt-4\n"), None);
     }
 }

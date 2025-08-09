@@ -58,9 +58,12 @@ fn handle_list_models() {
 
 /// 执行翻译
 async fn execute_translation(args: &Cli, text: &str, url: &str) -> Result<String> {
+    // 智能解析 API 密钥
+    let api_key = args.resolve_api_key()?;
+    
     // 使用解析后的配置创建翻译器实例
     let translator = Translator::new(
-        args.key.clone(), 
+        api_key,
         url.to_string(), 
         args.model.clone()
     );
