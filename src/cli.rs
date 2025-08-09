@@ -25,39 +25,6 @@ fn get_model_to_url() -> &'static HashMap<&'static str, &'static str> {
             ("gpt-4o-mini", "https://api.openai.com/v1"),
             ("gpt-3.5-turbo", "https://api.openai.com/v1"),
             ("gpt-3.5-turbo-16k", "https://api.openai.com/v1"),
-            
-            // Anthropic models
-            ("claude-3-opus-20240229", "https://api.anthropic.com/v1"),
-            ("claude-3-sonnet-20240229", "https://api.anthropic.com/v1"),
-            ("claude-3-haiku-20240307", "https://api.anthropic.com/v1"),
-            ("claude-3-5-sonnet-20241022", "https://api.anthropic.com/v1"),
-            ("claude-3-5-haiku-20241022", "https://api.anthropic.com/v1"),
-            
-            // Common short names for Anthropic models
-            ("claude-3-opus", "https://api.anthropic.com/v1"),
-            ("claude-3-sonnet", "https://api.anthropic.com/v1"),
-            ("claude-3-haiku", "https://api.anthropic.com/v1"),
-            ("claude-3.5-sonnet", "https://api.anthropic.com/v1"),
-            ("claude-3.5-haiku", "https://api.anthropic.com/v1"),
-            
-            // Other common model providers
-            // Cohere models
-            ("command-r", "https://api.cohere.ai/v1"),
-            ("command-r-plus", "https://api.cohere.ai/v1"),
-            ("command-light", "https://api.cohere.ai/v1"),
-            
-            // Mistral models
-            ("mistral-large-latest", "https://api.mistral.ai/v1"),
-            ("mistral-medium-latest", "https://api.mistral.ai/v1"),
-            ("mistral-small-latest", "https://api.mistral.ai/v1"),
-            ("open-mistral-7b", "https://api.mistral.ai/v1"),
-            ("open-mixtral-8x7b", "https://api.mistral.ai/v1"),
-            ("open-mixtral-8x22b", "https://api.mistral.ai/v1"),
-            
-            // Perplexity models
-            ("llama-3.1-sonar-small-128k-online", "https://api.perplexity.ai"),
-            ("llama-3.1-sonar-large-128k-online", "https://api.perplexity.ai"),
-            ("llama-3.1-sonar-huge-128k-online", "https://api.perplexity.ai"),
         ])
     })
 }
