@@ -64,7 +64,7 @@ impl fmt::Display for TransomeError {
             } => {
                 write!(
                     f,
-                    "Model '{}' not found. Available models: [{}]",
+                    "未找到模型 '{}'。可用模型：[{}]",
                     model_name,
                     available_models.join(", ")
                 )
@@ -77,30 +77,30 @@ impl fmt::Display for TransomeError {
             } => match status_code {
                 Some(code) => write!(
                     f,
-                    "API call to '{}' failed with status {}: {}",
+                    "API 调用 '{}' 失败，状态码 {}：{}",
                     endpoint, code, message
                 ),
-                None => write!(f, "API call to '{}' failed: {}", endpoint, message),
+                None => write!(f, "API 调用 '{}' 失败：{}", endpoint, message),
             },
 
             TransomeError::NetworkError { source } => {
-                write!(f, "Network error: {}", source)
+                write!(f, "网络错误：{}", source)
             }
 
             TransomeError::JsonError { source, context } => {
-                write!(f, "JSON error in {}: {}", context, source)
+                write!(f, "{} 中的 JSON 错误：{}", context, source)
             }
 
             TransomeError::IoError { source, context } => {
-                write!(f, "IO error in {}: {}", context, source)
+                write!(f, "{} 中的 IO 错误：{}", context, source)
             }
 
             TransomeError::AuthenticationError { message } => {
-                write!(f, "Authentication failed: {}", message)
+                write!(f, "认证失败：{}", message)
             }
 
             TransomeError::ConfigError { field, message } => {
-                write!(f, "Configuration error in field '{}': {}", field, message)
+                write!(f, "配置字段 '{}' 错误：{}", field, message)
             }
 
             TransomeError::ValidationError {
@@ -110,17 +110,17 @@ impl fmt::Display for TransomeError {
             } => {
                 write!(
                     f,
-                    "Validation error in field '{}': expected {}, got {}",
+                    "验证字段 '{}' 错误：期望 {}，实际 {}",
                     field, expected, actual
                 )
             }
 
             TransomeError::ModelLoadError { model_path, reason } => {
-                write!(f, "Failed to load model from '{}': {}", model_path, reason)
+                write!(f, "从 '{}' 加载模型失败：{}", model_path, reason)
             }
 
             TransomeError::TranslationServiceError { service, message } => {
-                write!(f, "Translation service '{}' error: {}", service, message)
+                write!(f, "翻译服务 '{}' 错误：{}", service, message)
             }
 
             TransomeError::General { message } => {
@@ -151,7 +151,7 @@ impl From<serde_json::Error> for TransomeError {
     fn from(error: serde_json::Error) -> Self {
         TransomeError::JsonError {
             source: error,
-            context: "unknown".to_string(),
+            context: "未知".to_string(),
         }
     }
 }
@@ -160,7 +160,7 @@ impl From<io::Error> for TransomeError {
     fn from(error: io::Error) -> Self {
         TransomeError::IoError {
             source: error,
-            context: "unknown".to_string(),
+            context: "未知".to_string(),
         }
     }
 }

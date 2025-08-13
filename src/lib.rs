@@ -80,11 +80,11 @@ mod tests {
 
     #[test]
     fn test_version_constants() {
-        // Test that constants have expected values
+        // 测试常量是否具有预期值
         assert_eq!(NAME, "transome");
-        // VERSION should be a valid semver string
+        // VERSION 应该是有效的语义版本字符串
         assert!(VERSION.chars().any(|c| c.is_ascii_digit()));
-        // DESCRIPTION should be present now
+        // DESCRIPTION 现在应该存在
         assert!(!DESCRIPTION.is_empty());
         assert!(DESCRIPTION.contains("translation"));
     }

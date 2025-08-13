@@ -10,7 +10,7 @@ use crate::translator::PROMPT;
 #[derive(Parser, Debug, Clone)]
 #[command(name = "transome")]
 #[command(version = "v0.2.0")]
-#[command(about = "A simple command line translation tool", long_about = None)]
+#[command(about = "一个简单的命令行翻译工具", long_about = None)]
 pub struct Cli {
     /// 要翻译的文本
     pub text: Option<String>,
@@ -297,7 +297,7 @@ mod tests {
 
             with_env_var("OPENAI_API_KEY", "openai-key", || {
                 let result = cli.resolve_api_key().unwrap();
-                assert_eq!(result, "openai-key", "Failed for model: {}", model);
+                assert_eq!(result, "openai-key", "模型 {} 失败", model);
             });
         }
     }
@@ -316,7 +316,7 @@ mod tests {
 
             with_env_var("GOOGLE_AI_API_KEY", "google-key", || {
                 let result = cli.resolve_api_key().unwrap();
-                assert_eq!(result, "google-key", "Failed for model: {}", model);
+                assert_eq!(result, "google-key", "模型 {} 失败", model);
             });
         }
     }
@@ -422,7 +422,7 @@ mod tests {
 
     #[test]
     fn test_manual_key_overrides_env_different_providers() {
-        // Test OpenAI model with manual key while Google env var is set
+        // 测试在设置 Google 环境变量时使用手动密钥的 OpenAI 模型
         let cli = create_test_cli_with_key("gpt-4", "manual-openai-key");
 
         with_env_var("GOOGLE_AI_API_KEY", "google-env-key", || {
@@ -430,7 +430,7 @@ mod tests {
             assert_eq!(result, "manual-openai-key");
         });
 
-        // Test Gemini model with manual key while OpenAI env var is set
+        // 测试在设置 OpenAI 环境变量时使用手动密钥的 Gemini 模型
         let cli = create_test_cli_with_key("gemini-2.5-flash", "manual-gemini-key");
 
         with_env_var("OPENAI_API_KEY", "openai-env-key", || {
@@ -441,15 +441,15 @@ mod tests {
 
     #[test]
     fn test_automatic_env_var_selection() {
-        // Set both environment variables
+        // 设置两个环境变量
         with_env_var("OPENAI_API_KEY", "openai-key", || {
             with_env_var("GOOGLE_AI_API_KEY", "google-key", || {
-                // OpenAI model should use OPENAI_API_KEY
+                // OpenAI 模型应该使用 OPENAI_API_KEY
                 let openai_cli = create_test_cli("gpt-4");
                 let result = openai_cli.resolve_api_key().unwrap();
                 assert_eq!(result, "openai-key");
 
-                // Gemini model should use GOOGLE_AI_API_KEY
+                // Gemini 模型应该使用 GOOGLE_AI_API_KEY
                 let gemini_cli = create_test_cli("gemini-2.5-flash");
                 let result = gemini_cli.resolve_api_key().unwrap();
                 assert_eq!(result, "google-key");
@@ -461,9 +461,9 @@ mod tests {
     fn test_validate_list_models_skips_validation() {
         let mut cli = create_test_cli("unsupported-model");
         cli.list_models = true;
-        cli.text = None; // This would normally fail validation
+        cli.text = None; // 这通常会导致验证失败
 
-        // Should not fail because list_models is true
+        // 不应该失败，因为 list_models 为 true
         let result = cli.validate();
         assert!(result.is_ok());
     }

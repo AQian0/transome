@@ -301,7 +301,7 @@ mod tests {
 
     #[test]
     fn test_get_env_var_name_for_model() {
-        // Test OpenAI models
+        // 测试 OpenAI 模型
         assert_eq!(get_env_var_name_for_model("gpt-4"), Some("OPENAI_API_KEY"));
         assert_eq!(get_env_var_name_for_model("gpt-4o"), Some("OPENAI_API_KEY"));
         assert_eq!(
@@ -321,7 +321,7 @@ mod tests {
             Some("OPENAI_API_KEY")
         );
 
-        // Test Google Gemini models
+        // 测试 Google Gemini 模型
         assert_eq!(
             get_env_var_name_for_model("gemini-2.5-flash"),
             Some("GOOGLE_AI_API_KEY")
@@ -343,19 +343,19 @@ mod tests {
             Some("GOOGLE_AI_API_KEY")
         );
 
-        // Test unsupported models
+        // 测试不支持的模型
         assert_eq!(get_env_var_name_for_model("nonexistent-model"), None);
         assert_eq!(get_env_var_name_for_model("claude-3"), None);
         assert_eq!(get_env_var_name_for_model("llama-2"), None);
 
-        // Test URL input (should return None for non-model URLs)
+        // 测试 URL 输入（非模型 URL 应返回 None）
         assert_eq!(get_env_var_name_for_model("https://custom.api.com"), None);
         assert_eq!(get_env_var_name_for_model("http://localhost:8080"), None);
     }
 
     #[test]
     fn test_get_env_var_name_for_model_comprehensive() {
-        // Test that each supported model returns the correct environment variable
+        // 测试每个支持的模型返回正确的环境变量
         let openai_models = vec![
             "gpt-4",
             "gpt-4-turbo",
@@ -372,7 +372,7 @@ mod tests {
             "gemini-1.5-flash",
         ];
 
-        // All OpenAI models should return OPENAI_API_KEY
+        // 所有 OpenAI 模型应返回 OPENAI_API_KEY
         for model in openai_models {
             assert_eq!(
                 get_env_var_name_for_model(model),
@@ -382,7 +382,7 @@ mod tests {
             );
         }
 
-        // All Gemini models should return GOOGLE_AI_API_KEY
+        // 所有 Gemini 模型应返回 GOOGLE_AI_API_KEY
         for model in gemini_models {
             assert_eq!(
                 get_env_var_name_for_model(model),
@@ -395,19 +395,19 @@ mod tests {
 
     #[test]
     fn test_get_env_var_name_for_model_edge_cases() {
-        // Test empty string
+        // 测试空字符串
         assert_eq!(get_env_var_name_for_model(""), None);
 
-        // Test strings with similar prefixes but not exact matches
+        // 测试具有相似前缀但不完全匹配的字符串
         assert_eq!(get_env_var_name_for_model("gpt"), None);
         assert_eq!(get_env_var_name_for_model("gemini"), None);
         assert_eq!(get_env_var_name_for_model("gpt-5"), None); // 假设的未来模型
 
-        // Test case sensitivity - our models are lowercase, so uppercase should fail
+        // 测试大小写敏感性 - 我们的模型是小写的，所以大写应该失败
         assert_eq!(get_env_var_name_for_model("GPT-4"), None);
         assert_eq!(get_env_var_name_for_model("GEMINI-2.5-FLASH"), None);
 
-        // Test with extra whitespace (should fail because we don't trim)
+        // 测试额外的空白字符（应该失败，因为我们不进行修剪）
         assert_eq!(get_env_var_name_for_model(" gpt-4 "), None);
         assert_eq!(get_env_var_name_for_model("gpt-4\n"), None);
     }
